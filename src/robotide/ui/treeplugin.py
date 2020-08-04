@@ -51,13 +51,8 @@ from .treenodehandlers import ResourceRootHandler, action_handler_class, Resourc
 from .images import TreeImageList
 
 
-_TREE_ARGS = {'style': wx.TR_DEFAULT_STYLE}
-_TREE_ARGS['agwStyle'] = customtreectrl.TR_DEFAULT_STYLE | customtreectrl.TR_HIDE_ROOT | \
-                         customtreectrl.TR_EDIT_LABELS
+_TREE_ARGS = {'style': wx.TR_DEFAULT_STYLE, 'agwStyle': customtreectrl.TR_DEFAULT_STYLE | customtreectrl.TR_HIDE_ROOT}
 _TREE_ARGS['agwStyle'] |= customtreectrl.TR_TOOLTIP_ON_LONG_ITEMS
-
-if IS_WINDOWS:
-    _TREE_ARGS['style'] |= wx.TR_EDIT_LABELS
 
 
 class TreePlugin(Plugin):
@@ -1020,42 +1015,32 @@ class TreeLabelEditListener(object):
                 None, None, action=self.OnDelete, shortcut='Del')
             action_registerer.register_shortcut(delete_key_action)
         self._editing_label = False
-        self._on_label_edit_called = False
 
     def OnBeginLabelEdit(self, event):
         # See http://code.google.com/p/robotframework-ride/issues/detail?id=756
         self._editing_label = True
-        if not self._on_label_edit_called:
-            self.OnLabelEdit()
-            event.Veto()
-            # On windows CustomTreeCtrl will create Editor component
-            # And we want this to be done by the handler -- as it knows if
-            # there should be one or not. And because this will make it work
-            # the same way as when pressing F2 .. so in other words there is
-            # a bug if we don't Veto this event
+        event.Skip()
 
     def OnLabelEdit(self, event=None):
-        if not self._on_label_edit_called:
-            self._on_label_edit_called = True
-            handler = self._tree._controller.get_handler()
-            if handler and not handler.begin_label_edit():
-                    self._on_label_edit_called = False
-                    self._editing_label = False
+        handler = self._tree._controller.get_handler()
+        if handler:
+            handler.begin_label_edit()
 
     def OnLabelEdited(self, event):
-        self._editing_label = False
-        self._on_label_edit_called = False
-        self._tree._controller.get_handler(event.GetItem()) \
-            .end_label_edit(event)
-
-        # Reset edit control as it doesn't seem to reset it in case the focus
-        # goes directly away from the tree control
-        # Use CallAfter to prevent messing up the current end label edit
-        # .. and the another CallAfter because of
-        # customtreectrl.TreeTextCtrl#OnChar will call CallAfter(self.Finish)
-        # when Enter is pressed --> Results in PyDeadObject if called after
-        # ResetEditControl..
-        wx.CallAfter(wx.CallAfter, self._stop_editing)
+        if self._editing_label:
+            self._tree._controller.get_handler(event.GetItem()) \
+                .end_label_edit(event)
+            self._editing_label = False
+            # Reset edit control as it doesn't seem to reset it in case the focus
+            # goes directly away from the tree control
+            # Use CallAfter to prevent messing up the current end label edit
+            # .. and the another CallAfter because of
+            # customtreectrl.TreeTextCtrl#OnChar will call CallAfter(self.Finish)
+            # when Enter is pressed --> Results in PyDeadObject if called after
+            # ResetEditControl..
+            wx.CallAfter(wx.CallAfter, self._stop_editing)
+        else:
+            event.Skip()
 
     def _stop_editing(self):
         control = self._tree.GetEditControl()
