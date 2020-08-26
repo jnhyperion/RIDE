@@ -3,11 +3,10 @@ ifdef::env-github[:outfilesuffix: .adoc]
 
 RIDE is a development environment for Robot Framework test cases.
 
-**Instant Communication**
-Join our **#ride** channel in Robot Framework Slack: https://robotframework.slack.com
-(signup page: https://robotframework-slack-invite.herokuapp.com/)
+image:https://img.shields.io/badge/chat-on%20slack-blue.svg[Slack, link=https://robotframework.slack.com/messages/ride]
 
-== **Welcome to the development version of RIDE - next release will be version 2.0**
+'''
+== Welcome to the development version of RIDE - next release will be version 2.0
 
 If you are looking for the latest released version, you can get the source code from **https://github.com/robotframework/RIDE/releases[releases]** or from branch **https://github.com/robotframework/RIDE/tree/release/1.7.4.2[release/1.7.4.2]**
 See the https://github.com/robotframework/RIDE/blob/master/doc/releasenotes/ride-1.7.4.2.rst[release notes] for latest release version 1.7.4.2.
@@ -30,12 +29,9 @@ Install current Beta version (2.0b1) with:
 pip install -U --pre robotframework-ride
 
 
-**See the https://github.com/robotframework/RIDE/wiki/F%2eA%2eQ%2e[FAQ] at https://github.com/robotframework/RIDE/wiki[Wiki]**
-
-
-
 == Unit testing statuses:
 Linux (py36, py37): image:https://travis-ci.com/robotframework/RIDE.svg?branch=master[Unit Tests, link=https://travis-ci.com/robotframework/RIDE]
+
 Windows (py36, py37, py38): image:https://ci.appveyor.com/api/projects/status/github/HelioGuilherme66/RIDE?branch=master&svg=true[Unit Tests, link=https://ci.appveyor.com/project/HelioGuilherme66/ride]
 
 '''
