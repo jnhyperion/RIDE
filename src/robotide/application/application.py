@@ -105,8 +105,7 @@ class RIDE(wx.App):
             all_windows.append(root)
 
         _iterate_all_windows(_root)
-        _iterate_all_windows(self.frame)
-        all_windows = set(all_windows)
+
         for w in all_windows:
             if hasattr(w, 'SetBackgroundColour'):
                 w.SetBackgroundColour(wx.Colour(44, 134, 179))
