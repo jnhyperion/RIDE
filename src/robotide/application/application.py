@@ -106,6 +106,8 @@ class RIDE(wx.App):
 
         _iterate_all_windows(_root)
 
+        self.frame.UpdateAUIColor(wx.Colour(44, 134, 179))
+
         for w in all_windows:
             if hasattr(w, 'SetBackgroundColour'):
                 w.SetBackgroundColour(wx.Colour(44, 134, 179))

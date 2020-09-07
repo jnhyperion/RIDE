@@ -174,7 +174,7 @@ class RideFrame(wx.Frame):
         self.Bind(wx.EVT_DIRCTRL_FILEACTIVATED, self.OnOpenFile)
         self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.OnMenuOpenFile)
         self._subscribe_messages()
-        wx.CallAfter(self.actions.register_tools)  # DEBUG
+        wx.CallAfter(self.actions.register_tools)
 
     def _subscribe_messages(self):
         for listener, topic in [
@@ -186,6 +186,22 @@ class RideFrame(wx.Frame):
              RideModificationPrevented)
         ]:
             PUBLISHER.subscribe(listener, topic)
+
+    def GetDockArt(self):
+        return self._mgr.GetArtProvider()
+
+    def UpdateAUIColor(self, colour: wx.Colour):
+        self.GetDockArt().SetColour(aui.AUI_DOCKART_BACKGROUND_COLOUR, colour)
+        self.GetDockArt().SetColour(aui.AUI_DOCKART_SASH_COLOUR, colour)
+        self.GetDockArt().SetColour(aui.AUI_DOCKART_BORDER_COLOUR, colour)
+        self.GetDockArt().SetColour(aui.AUI_DOCKART_GRIPPER_COLOUR, colour)
+        self.GetDockArt().SetColour(aui.AUI_DOCKART_ACTIVE_CAPTION_COLOUR, colour)
+        self.GetDockArt().SetColour(aui.AUI_DOCKART_INACTIVE_CAPTION_COLOUR, colour)
+        self.GetDockArt().SetDefaultColours(colour)
+        self.tab_art.SetDefaultColours(colour)
+        self.tool_bar_art.SetDefaultColours(colour)
+        self.notebook.SetArtProvider(self.tab_art)
+        self.toolbar.SetArtProvider(self.tool_bar_art)
 
     def _set_label(self, message):
         self.SetTitle(self._create_title(message))
@@ -209,74 +225,43 @@ class RideFrame(wx.Frame):
                       style=wx.ICON_ERROR)
 
     def _init_ui(self):
-        # self._mgr.AddPane(wx.Panel(self), aui.AuiPaneInfo().CenterPane())
-        ##### self.splitter = wx.SplitterWindow(self, style=wx.SP_LIVE_UPDATE)
-        # self._mgr.AddPane(wx.Panel(self), aui.AuiPaneInfo().CenterPane())
-        # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | \
                                aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
         # TODO self._notebook_theme = 0 (allow to select themes for notebooks)
-        # self.notebook = NoteBook(self.splitter, self._application,
-        #                         self._notebook_style)
+
         self.notebook = NoteBook(self, self._application,
                                  self._notebook_style)
         self._mgr.AddPane(self.notebook,
                           aui.AuiPaneInfo().Name("notebook_editors").
                           CenterPane().PaneBorder(False))
-        ################ Test
-        # self._mgr.AddPane(self.CreateTextCtrl(),
-        #                   aui.AuiPaneInfo().Name("text_content").
-        #                   CenterPane().Hide().MinimizeButton(True))
-        #
-        # self._mgr.AddPane(self.CreateHTMLCtrl(),
-        #                   aui.AuiPaneInfo().Name("html_content").
-        #                   CenterPane().Hide().MinimizeButton(True))
-        #
-        # self._mgr.AddPane(self.CreateNotebook(),
-        #                   aui.AuiPaneInfo().Name("notebook_content").
-        #                   CenterPane().PaneBorder(False))
-        ####################
-        # self._mgr.AddPane(self.CreateSizeReportCtrl(), aui.AuiPaneInfo().
-        #                   Name("test1").Caption(
-        #     "Pane Caption").Top().MinimizeButton(True))
-
         mb = MenuBar(self)
         self.toolbar = ToolBar(self)
         self.toolbar.SetMinSize(wx.Size(100, 60))
-        # self.SetToolBar(self.toolbar.GetToolBar())
         self._mgr.AddPane(self.toolbar, aui.AuiPaneInfo().Name("maintoolbar").
                           ToolbarPane().Top())
         self.actions = ActionRegisterer(self._mgr, mb, self.toolbar,
                                         ShortcutRegistry(self))
-        """
-        ##### Test
-        tb3 = self.testToolbar()
-
-        self._mgr.AddPane(tb3,
-                          aui.AuiPaneInfo().Name("tb3").Caption("Toolbar 3").
-                          ToolbarPane().Top().Row(1).Position(1))
-        
-        ##### End Test
-        """
         # Tree is always created here
         self.tree = Tree(self, self.actions, self._application.settings)
         self.tree.SetMinSize(wx.Size(120, 200))
         # TreePlugin will manage showing the Tree
         self.actions.register_actions(ActionInfoCollection(_menudata, self, self.tree))
-        ###### File explorer panel is always created here
+        # File explorer panel is always created here
         self.filemgr = FileExplorer(self, self._controller)
         self.filemgr.SetMinSize(wx.Size(120, 200))
 
         mb.take_menu_bar_into_use()
-        self.CreateStatusBar()
+        # self.CreateStatusBar()
         # set main frame icon
         self.SetIcons(self._image_provider.PROGICONS)
         # tell the manager to "commit" all the changes just made
+        self.tab_art = aui.AuiDefaultTabArt()
+        self.tool_bar_art = aui.AuiDefaultToolBarArt()
         self._mgr.Update()
 
     def testToolbar(self):
 
-        #### More testing
+        # More testing
         prepend_items, append_items = [], []
         item = aui.AuiToolBarItem()
 
