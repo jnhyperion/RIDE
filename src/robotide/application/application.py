@@ -16,11 +16,11 @@
 import os
 import wx
 import locale
+import weakref
 
 locale.setlocale(locale.LC_ALL, 'C')
 
 from contextlib import contextmanager
-
 from ..namespace import Namespace
 from ..controller import Project
 from ..spec import librarydatabase
@@ -37,6 +37,7 @@ from ..application.updatenotifier import UpdateNotifierController, UpdateDialog
 from ..ui.treeplugin import TreePlugin
 from ..ui.fileexplorerplugin import FileExplorerPlugin
 from ..utils import RideFSWatcherHandler, run_python_command
+from ..utils.weakreflist import WeakList
 
 
 class RIDE(wx.App):
@@ -45,6 +46,7 @@ class RIDE(wx.App):
         self._updatecheck = updatecheck
         self.workspace_path = path
         context.APP = self
+        self._windows_registry = WeakList()
         wx.App.__init__(self, redirect=False)
 
     def OnInit(self):
@@ -92,23 +94,9 @@ class RIDE(wx.App):
         return True
 
     def SetGlobalColour(self, event):
-        app = wx.App.Get()
-        _root = app.GetTopWindow()
-        all_windows = list()
+        w = event.GetEventObject()
 
-        def _iterate_all_windows(root):
-            if hasattr(root, 'GetChildren'):
-                children = root.GetChildren()
-                if children:
-                    for c in children:
-                        _iterate_all_windows(c)
-            all_windows.append(root)
-
-        _iterate_all_windows(_root)
-
-        self.frame.UpdateAUIColor(wx.Colour(44, 134, 179))
-
-        for w in all_windows:
+        if w not in self._windows_registry:
             if hasattr(w, 'SetBackgroundColour'):
                 w.SetBackgroundColour(wx.Colour(44, 134, 179))
 
@@ -120,6 +108,15 @@ class RIDE(wx.App):
 
             if hasattr(w, 'SetOwnForegroundColour'):
                 w.SetOwnForegroundColour(wx.Colour(7, 0, 70))
+
+            if hasattr(w, 'SetDefaultCellBackgroundColour'):
+                w.SetDefaultCellBackgroundColour(wx.Colour(44, 134, 179))
+
+            if w == self.frame:
+                self.frame.UpdateAUIColor(wx.Colour(44, 134, 179))
+            self._windows_registry.append(weakref.proxy(w))
+
+        event.Skip()
 
     def _publish_system_info(self):
         publish.RideLogMessage(context.SYSTEM_INFO).publish()

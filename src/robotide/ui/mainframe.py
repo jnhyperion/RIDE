@@ -202,6 +202,7 @@ class RideFrame(wx.Frame):
         self.tool_bar_art.SetDefaultColours(colour)
         self.notebook.SetArtProvider(self.tab_art)
         self.toolbar.SetArtProvider(self.tool_bar_art)
+        self.tree.SetBackgroundColour(colour)
 
     def _set_label(self, message):
         self.SetTitle(self._create_title(message))

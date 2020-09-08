@@ -62,7 +62,7 @@ class Colorizer(object):
 
     def _set_default_colors(self, row, col):
         self._grid.SetCellTextColour(row, col, self._colors.DEFAULT_TEXT)
-        self._grid.SetCellBackgroundColour(row, col, self._colors.DEFAULT_BACKGROUND)
+        self._grid.SetCellBackgroundColour(row, col, self._grid.GetBackgroundColour())
 
     def _get_text_color(self, cell_info):
         return self._colors.get_text_color(cell_info.content_type)

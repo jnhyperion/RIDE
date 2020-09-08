@@ -22,6 +22,7 @@ class ButtonWithHandler(wx.Button):
                  height=25):
         wx.Button.__init__(self, parent, label=label,
                            size=(width, height))
+        self.SetDefault()
         if not handler:
             handler = getattr(parent, 'On'+label.replace(' ', ''))
         parent.Bind(wx.EVT_BUTTON, handler, self)
